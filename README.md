@@ -11,7 +11,7 @@
 ### 1. Clonar el repositorio
 
 ```bash
-git clone https://github.com/<usuario>/YuguGYM.git
+git clone https://github.com/GonzaloRail/YuguGYM.git
 cd YuguGYM
 ```
 
@@ -23,7 +23,10 @@ source venv/bin/activate         # Linux/Mac
 # venv\Scripts\activate         # Windows
 
 pip install -r requirements.txt
-cp .env.example .env             # variables de entorno por defecto (SQLite local)
+cp .env.example .env             # variables de entorno por defecto 
+#borras el .example, solo debe quedarte el ".env", asi tal cual 
+
+(SQLite local)
 python manage.py migrate
 python manage.py seed            # carga datos iniciales (membresías, métodos pago, admin)
 python manage.py runserver 8099  # el backend corre en el puerto 8099
