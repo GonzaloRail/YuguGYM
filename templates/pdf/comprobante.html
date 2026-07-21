@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Comprobante de Pago</title>
+  <style>
+    body { font-family: Arial, sans-serif; font-size: 12px; color: #333; }
+    .header { text-align: center; border-bottom: 2px solid #F97316; padding-bottom: 10px; margin-bottom: 20px; }
+    .header h1 { color: #F97316; margin: 0; font-size: 22px; }
+    .header p { margin: 2px 0; color: #666; }
+    .info { margin-bottom: 20px; }
+    .info table { width: 100%; }
+    .info td { padding: 3px 0; }
+    .info .label { font-weight: bold; color: #555; width: 150px; }
+    .footer { text-align: center; margin-top: 30px; color: #999; font-size: 10px; border-top: 1px solid #ddd; padding-top: 10px; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>{{ gimnasio.nombre }}</h1>
+    <p>RUC: {{ gimnasio.ruc }} | {{ gimnasio.direccion }}</p>
+    <p>Tel: {{ gimnasio.telefono }} | {{ gimnasio.correo }}</p>
+  </div>
+
+  <h2 style="color: #F97316;">COMPROBANTE DE PAGO</h2>
+  <p><strong>N° Comprobante:</strong> {{ comprobante.numero }}</p>
+  <p><strong>Fecha de Emisión:</strong> {{ comprobante.fecha_emision }}</p>
+
+  <div class="info">
+    <h3>Datos del Socio</h3>
+    <table>
+      <tr><td class="label">DNI:</td><td>{{ socio.dni }}</td></tr>
+      <tr><td class="label">Nombres:</td><td>{{ socio.nombres }} {{ socio.apellidos }}</td></tr>
+    </table>
+  </div>
+
+  <div class="info">
+    <h3>Detalle del Pago</h3>
+    <table>
+      <tr><td class="label">Fecha de Pago:</td><td>{{ pago.fecha }}</td></tr>
+      <tr><td class="label">Monto:</td><td>S/ {{ pago.monto }}</td></tr>
+      <tr><td class="label">Tipo de Membresía:</td><td>{{ pago.tipo_membresia }}</td></tr>
+      <tr><td class="label">Método de Pago:</td><td>{{ pago.metodo }}</td></tr>
+      <tr><td class="label">Vigencia hasta:</td><td>{{ pago.vigencia }}</td></tr>
+      <tr><td class="label">Estado:</td><td><strong>PAGADO</strong></td></tr>
+    </table>
+  </div>
+
+  <div class="footer">
+    <p>Este documento es un comprobante simple de pago.</p>
+    <p>YuguGYM - Sistema de Gestión de Gimnasio</p>
+  </div>
+</body>
+</html>

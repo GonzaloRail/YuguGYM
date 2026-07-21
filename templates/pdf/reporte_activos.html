@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Reporte de Socios Activos</title>
+  <style>
+    body { font-family: Arial, sans-serif; font-size: 11px; color: #333; }
+    .header { text-align: center; border-bottom: 2px solid #F97316; padding-bottom: 10px; margin-bottom: 20px; }
+    .header h1 { color: #F97316; margin: 0; font-size: 20px; }
+    .header p { margin: 2px 0; color: #666; font-size: 10px; }
+    .summary { text-align: center; margin-bottom: 15px; font-size: 13px; }
+    .summary strong { color: #F97316; font-size: 16px; }
+    table { width: 100%; border-collapse: collapse; }
+    th { background: #F97316; color: white; padding: 6px 8px; text-align: left; font-size: 10px; }
+    td { padding: 5px 8px; border-bottom: 1px solid #ddd; }
+    tr:nth-child(even) { background: #f9f9f9; }
+    .footer { text-align: center; margin-top: 25px; color: #999; font-size: 9px; border-top: 1px solid #ddd; padding-top: 10px; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>{{ gimnasio.nombre }}</h1>
+    <p>RUC: {{ gimnasio.ruc }} | {{ gimnasio.direccion }} | Tel: {{ gimnasio.telefono }}</p>
+  </div>
+
+  <h2 style="color: #F97316;">REPORTE DE SOCIOS ACTIVOS</h2>
+
+  <div class="summary">
+    <p>Total de socios con membresía activa: <strong>{{ total }}</strong></p>
+    <p>Fecha de generación: {{ fecha }}</p>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>DNI</th>
+        <th>Apellidos y Nombres</th>
+        <th>Teléfono</th>
+        <th>Tipo Membresía</th>
+        <th>Vencimiento</th>
+        <th>Días Rest.</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for s in socios %}
+      <tr>
+        <td>{{ s.dni }}</td>
+        <td>{{ s.apellidos }}, {{ s.nombres }}</td>
+        <td>{{ s.telefono }}</td>
+        <td>{{ s.tipo_membresia }}</td>
+        <td>{{ s.fecha_vencimiento }}</td>
+        <td style="{% if s.dias_restantes <= 7 %}color:#ef4444;font-weight:bold{% elif s.dias_restantes <= 15 %}color:#f59e0b{% else %}color:#22c55e{% endif %}">{{ s.dias_restantes }}d</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div class="footer">
+    <p>YuguGYM - Sistema de Gestión de Gimnasio | {{ fecha }}</p>
+  </div>
+</body>
+</html>

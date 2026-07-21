@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Reporte de Ingresos</title>
+  <style>
+    body { font-family: Arial, sans-serif; font-size: 11px; color: #333; }
+    .header { text-align: center; border-bottom: 2px solid #F97316; padding-bottom: 10px; margin-bottom: 20px; }
+    .header h1 { color: #F97316; margin: 0; font-size: 20px; }
+    .header p { margin: 2px 0; color: #666; font-size: 10px; }
+    .summary { display: flex; justify-content: space-around; margin-bottom: 20px; }
+    .summary div { text-align: center; padding: 10px 15px; border: 1px solid #ddd; border-radius: 6px; }
+    .summary .total { border-color: #F97316; background: #fff7ed; }
+    .summary .total strong { color: #F97316; font-size: 18px; }
+    .summary strong { color: #333; font-size: 14px; }
+    .summary p { margin: 0; font-size: 9px; color: #666; text-transform: uppercase; }
+    table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+    th { background: #F97316; color: white; padding: 6px 8px; text-align: left; font-size: 10px; }
+    td { padding: 5px 8px; border-bottom: 1px solid #ddd; }
+    tr:nth-child(even) { background: #f9f9f9; }
+    .footer { text-align: center; margin-top: 25px; color: #999; font-size: 9px; border-top: 1px solid #ddd; padding-top: 10px; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>{{ gimnasio.nombre }}</h1>
+    <p>RUC: {{ gimnasio.ruc }} | {{ gimnasio.direccion }} | Tel: {{ gimnasio.telefono }}</p>
+  </div>
+
+  <h2 style="color: #F97316;">REPORTE DE INGRESOS — {{ periodo }}</h2>
+
+  <div class="summary">
+    <div class="total">
+      <p>Total Ingresos</p>
+      <strong>S/ {{ total }}</strong>
+    </div>
+    {% for metodo, monto in desglose.items %}
+    <div>
+      <p>{{ metodo }}</p>
+      <strong>S/ {{ monto }}</strong>
+    </div>
+    {% endfor %}
+  </div>
+
+  <p style="margin-bottom: 10px; color: #666;">
+    Período: {{ fecha_inicio }} → {{ fecha_fin }} | {{ cantidad }} transacciones
+  </p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Fecha</th>
+        <th>Socio</th>
+        <th>DNI</th>
+        <th>Monto</th>
+        <th>Método</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for p in pagos %}
+      <tr>
+        <td>{{ p.fecha }}</td>
+        <td>{{ p.apellidos }}, {{ p.nombres }}</td>
+        <td>{{ p.dni }}</td>
+        <td>S/ {{ p.monto }}</td>
+        <td>{{ p.metodo }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div class="footer">
+    <p>YuguGYM - Sistema de Gestión de Gimnasio | {{ fecha }}</p>
+  </div>
+</body>
+</html>

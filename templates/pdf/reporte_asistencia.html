@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Reporte de Asistencia</title>
+  <style>
+    body { font-family: Arial, sans-serif; font-size: 11px; color: #333; }
+    .header { text-align: center; border-bottom: 2px solid #F97316; padding-bottom: 10px; margin-bottom: 20px; }
+    .header h1 { color: #F97316; margin: 0; font-size: 20px; }
+    .header p { margin: 2px 0; color: #666; font-size: 10px; }
+    .summary { text-align: center; margin-bottom: 20px; }
+    .summary .big-number { font-size: 48px; font-weight: bold; color: #F97316; }
+    .summary p { color: #666; margin: 2px 0; font-size: 12px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+    th { background: #F97316; color: white; padding: 6px 8px; text-align: left; font-size: 10px; }
+    td { padding: 5px 8px; border-bottom: 1px solid #ddd; }
+    tr:nth-child(even) { background: #f9f9f9; }
+    .footer { text-align: center; margin-top: 25px; color: #999; font-size: 9px; border-top: 1px solid #ddd; padding-top: 10px; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>{{ gimnasio.nombre }}</h1>
+    <p>RUC: {{ gimnasio.ruc }} | {{ gimnasio.direccion }} | Tel: {{ gimnasio.telefono }}</p>
+  </div>
+
+  <h2 style="color: #F97316;">REPORTE DE ASISTENCIA</h2>
+
+  <div class="summary">
+    <div class="big-number">{{ ingresos_diarios }}</div>
+    <p>Ingresos registrados el {{ fecha }}</p>
+  </div>
+
+  {% if top_socios %}
+  <h3 style="color: #555;">Top {{ top_n }} Socios más Frecuentes ({{ rango_inicio }} → {{ rango_fin }})</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Apellidos y Nombres</th>
+        <th>DNI</th>
+        <th>Asistencias</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for s in top_socios %}
+      <tr>
+        <td>{{ forloop.counter }}</td>
+        <td>{{ s.apellidos }}, {{ s.nombres }}</td>
+        <td>{{ s.dni }}</td>
+        <td><strong>{{ s.total }}</strong></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+
+  <div class="footer">
+    <p>YuguGYM - Sistema de Gestión de Gimnasio | {{ fecha }}</p>
+  </div>
+</body>
+</html>
