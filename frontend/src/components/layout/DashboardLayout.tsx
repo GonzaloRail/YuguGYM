@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Outlet, NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/lib/auth'
 import {
-  Users, CreditCard, DollarSign, ClipboardCheck, BarChart3,
+  Users, CreditCard, ClipboardCheck, BarChart3,
   Shield, LogOut, ChevronLeft, Menu, Dumbbell
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -16,7 +16,6 @@ const navItems = [
   { path: '/', label: 'Dashboard', icon: BarChart3, end: true },
   { path: '/socios', label: 'Socios', icon: Users },
   { path: '/membresias', label: 'Membresías', icon: CreditCard },
-  { path: '/pagos', label: 'Pagos', icon: DollarSign },
   { path: '/asistencias', label: 'Asistencia', icon: ClipboardCheck },
   { path: '/reportes', label: 'Reportes', icon: BarChart3 },
   { path: '/registrar-admin', label: 'Usuarios', icon: Shield },

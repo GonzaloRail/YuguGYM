@@ -8,7 +8,6 @@ import DashboardLayout from '@/components/layout/DashboardLayout'
 import DashboardPage from '@/pages/dashboard/DashboardPage'
 import SociosPage from '@/pages/socios/SociosPage'
 import MembresiasPage from '@/pages/membresias/MembresiasPage'
-import PagosPage from '@/pages/pagos/PagosPage'
 import AsistenciasPage from '@/pages/asistencias/AsistenciasPage'
 import ReportesPage from '@/pages/reportes/ReportesPage'
 import ChangePasswordPage from '@/pages/auth/ChangePasswordPage'
@@ -39,7 +38,6 @@ export default function App() {
             <Route index element={<DashboardPage />} />
             <Route path="socios" element={<SociosPage />} />
             <Route path="membresias" element={<MembresiasPage />} />
-            <Route path="pagos" element={<PagosPage />} />
             <Route path="asistencias" element={<AsistenciasPage />} />
             <Route path="reportes" element={<ReportesPage />} />
             <Route path="cambiar-password" element={<ChangePasswordPage />} />
