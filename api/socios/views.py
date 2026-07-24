@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from django.db.models import Q
 
 from api.models import Socio
+from api.models import Membresia, EstadosMembresia
 from api.permissions import IsAdminUser
 from .serializers import (
     SocioListSerializer, SocioDetailSerializer,
@@ -78,4 +79,46 @@ class SocioViewSet(viewsets.ModelViewSet):
         return Response({
             'vigente': False,
             'mensaje': 'La membresía del socio se encuentra vencida. No se puede registrar el ingreso.'
+        })
+
+    @action(detail=True, methods=['get'], url_path='estados-membresia')
+    def estados_membresia(self, request, pk=None):
+        socio = self.get_object()
+        membresia = socio.membresia_activa()
+        estados = list(EstadosMembresia.objects.values('id', 'nombre'))
+        return Response({
+            'membresia_id': membresia.id if membresia else None,
+            'estado_actual_id': membresia.estado_id if membresia else None,
+            'estados': estados,
+        })
+
+    @action(detail=True, methods=['post'], url_path='cambiar-estado-membresia')
+    def cambiar_estado_membresia(self, request, pk=None):
+        socio = self.get_object()
+        membresia = socio.membresia_activa()
+        if not membresia:
+            return Response(
+                {'detail': 'El socio no tiene una membresía activa para modificar.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        estado_id = request.data.get('estado_id')
+        if not estado_id:
+            return Response(
+                {'detail': 'Debe proporcionar estado_id.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        try:
+            nuevo_estado = EstadosMembresia.objects.get(id=estado_id)
+        except EstadosMembresia.DoesNotExist:
+            return Response(
+                {'detail': 'El estado de membresía no existe.'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        membresia.estado = nuevo_estado
+        membresia.save(update_fields=['estado'])
+        return Response({
+            'detail': f'Estado de membresía actualizado a {nuevo_estado.nombre}.',
+            'membresia_id': membresia.id,
+            'estado_id': nuevo_estado.id,
+            'estado_nombre': nuevo_estado.nombre,
         })

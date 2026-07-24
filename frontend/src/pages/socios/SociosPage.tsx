@@ -53,6 +53,9 @@ export default function SociosPage() {
   const [deleteId, setDeleteId] = useState<number | null>(null)
   const [deleting, setDeleting] = useState(false)
   const [confirmClose, setConfirmClose] = useState(false)
+  const [estadosMembresia, setEstadosMembresia] = useState<{ id: number; nombre: string }[]>([])
+  const [membresiaActivaId, setMembresiaActivaId] = useState<number | null>(null)
+  const [estadoMembresiaId, setEstadoMembresiaId] = useState<string>('')
 
   const isDirty = (
     form.dni !== emptyForm.dni ||
@@ -160,6 +163,9 @@ export default function SociosPage() {
       setDialogOpen(false)
       setForm(emptyForm)
       setEditingId(null)
+      setEstadosMembresia([])
+      setMembresiaActivaId(null)
+      setEstadoMembresiaId('')
       loadSocios(searchDni, searchNombre, searchApellido)
       toast.success(editingId ? 'Socio actualizado correctamente.' : 'Socio registrado correctamente.')
     } catch (err) {
@@ -185,6 +191,20 @@ export default function SociosPage() {
       setDeleteId(null)
       loadSocios(searchDni, searchNombre, searchApellido)
       setDeleting(false)
+    }
+  }
+
+  async function handleCambiarEstadoMembresia() {
+    if (!editingId || !estadoMembresiaId) return
+    try {
+      const data = await api<{ detail: string }>(`/socios/${editingId}/cambiar-estado-membresia/`, {
+        method: 'POST',
+        body: JSON.stringify({ estado_id: Number(estadoMembresiaId) }),
+      })
+      toast.success(data.detail || 'Estado de membresía actualizado.')
+      loadSocios(searchDni, searchNombre, searchApellido)
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Error al cambiar estado de membresía')
     }
   }
 
@@ -228,12 +248,29 @@ export default function SociosPage() {
         estado: 'Activo',
       })
     }
+    try {
+      const data = await api<{
+        membresia_id: number | null
+        estado_actual_id: number | null
+        estados: { id: number; nombre: string }[]
+      }>(`/socios/${socio.id}/estados-membresia/`)
+      setEstadosMembresia(data.estados)
+      setMembresiaActivaId(data.membresia_id)
+      setEstadoMembresiaId(data.estado_actual_id ? String(data.estado_actual_id) : '')
+    } catch {
+      setEstadosMembresia([])
+      setMembresiaActivaId(null)
+      setEstadoMembresiaId('')
+    }
   }
 
   function openCreate() {
     setEditingId(null)
     setForm(emptyForm)
     setFormError('')
+    setEstadosMembresia([])
+    setMembresiaActivaId(null)
+    setEstadoMembresiaId('')
     setDialogOpen(true)
   }
 
@@ -338,6 +375,9 @@ export default function SociosPage() {
             setForm(emptyForm)
             setEditingId(null)
             setFormError('')
+            setEstadosMembresia([])
+            setMembresiaActivaId(null)
+            setEstadoMembresiaId('')
           }
         }
       }}>
@@ -403,6 +443,28 @@ export default function SociosPage() {
                 </Select>
               </div>
             )}
+            {editingId && (
+              <div className="space-y-1">
+                <Label className="text-zinc-300 text-sm">Estado de Membresía</Label>
+                {membresiaActivaId ? (
+                  <Select value={estadoMembresiaId} onValueChange={(v: string | null) => setEstadoMembresiaId(v ?? '')}>
+                    <SelectTrigger className="bg-zinc-800 border-zinc-700 text-zinc-100 data-[placeholder]:text-zinc-400">
+                      <SelectValue placeholder="Seleccionar estado" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-zinc-800 border-zinc-700 text-zinc-100">
+                      {estadosMembresia.map((e) => (
+                        <SelectItem key={e.id} value={String(e.id)}
+                          className="text-zinc-100 focus:bg-orange-500/20 focus:text-orange-400">
+                          {e.nombre}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <p className="text-zinc-500 text-sm italic">El socio no tiene una membresía activa.</p>
+                )}
+              </div>
+            )}
             <div className="space-y-1">
               <Label className="text-zinc-300 text-sm">Dirección</Label>
               <Input value={form.direccion} onChange={(e) => setForm({ ...form, direccion: e.target.value })} maxLength={150}
@@ -416,6 +478,12 @@ export default function SociosPage() {
             <Button type="submit" disabled={saving} className="w-full bg-orange-500 hover:bg-orange-600 text-white">
               {saving ? 'Guardando...' : editingId ? 'Actualizar Socio' : 'Registrar Socio'}
             </Button>
+            {editingId && membresiaActivaId && (
+              <Button type="button" onClick={handleCambiarEstadoMembresia} disabled={!estadoMembresiaId}
+                className="w-full bg-zinc-700 hover:bg-zinc-600 text-zinc-100">
+                Aplicar cambio de Membresía
+              </Button>
+            )}
           </form>
         </DialogContent>
       </Dialog>
@@ -511,6 +579,9 @@ export default function SociosPage() {
               setForm(emptyForm)
               setEditingId(null)
               setFormError('')
+              setEstadosMembresia([])
+              setMembresiaActivaId(null)
+              setEstadoMembresiaId('')
             }} className="bg-red-500 hover:bg-red-600 text-white">
               Descartar
             </Button>
