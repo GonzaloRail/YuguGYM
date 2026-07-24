@@ -1,5 +1,6 @@
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
+from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.db.models import Q
@@ -43,11 +44,15 @@ class SocioViewSet(viewsets.ModelViewSet):
         return queryset
 
     def perform_destroy(self, instance):
-        membresia_activa = instance.membresia_activa()
-        if membresia_activa:
-            raise Exception('El socio posee una membresía activa y no puede ser eliminado.')
+        if instance.membresia_activa():
+            raise ValidationError({
+                'detail': 'El socio posee una membresía activa y no puede ser eliminado.'
+            })
         if instance.pagos.exists():
-            raise Exception('El socio posee pagos registrados y no puede ser eliminado.')
+            raise ValidationError({
+                'detail': 'El socio posee pagos registrados. '
+                          'No se puede eliminar para preservar el historial financiero.'
+            })
         instance.delete()
 
     @action(detail=True, methods=['get'])

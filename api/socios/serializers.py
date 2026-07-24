@@ -29,8 +29,8 @@ class SocioCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Socio
         fields = ('dni', 'nombres', 'apellidos', 'fecha_nacimiento', 'sexo',
-                  'telefono', 'direccion', 'correo')
-        read_only_fields = ('fecha_inscripcion', 'estado')
+                  'telefono', 'direccion', 'correo', 'estado')
+        read_only_fields = ('fecha_inscripcion',)
 
     def validate_dni(self, value):
         if not re.fullmatch(r'[0-9]{8}', value):

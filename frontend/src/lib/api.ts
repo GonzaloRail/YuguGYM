@@ -143,5 +143,9 @@ export async function api<T = unknown>(
     throw new Error(error.error || error.detail || JSON.stringify(error))
   }
 
+  if (res.status === 204) {
+    return undefined as T
+  }
+
   return res.json()
 }

@@ -32,9 +32,10 @@ interface SocioForm {
   telefono: string
   direccion: string
   correo: string
+  estado: string
 }
 
-const emptyForm: SocioForm = { dni: '', nombres: '', apellidos: '', fecha_nacimiento: '', sexo: 'Masculino', telefono: '', direccion: '', correo: '' }
+const emptyForm: SocioForm = { dni: '', nombres: '', apellidos: '', fecha_nacimiento: '', sexo: 'Masculino', telefono: '', direccion: '', correo: '', estado: 'Activo' }
 
 export default function SociosPage() {
   const [socios, setSocios] = useState<Socio[]>([])
@@ -51,6 +52,19 @@ export default function SociosPage() {
   const [fichaOpen, setFichaOpen] = useState(false)
   const [deleteId, setDeleteId] = useState<number | null>(null)
   const [deleting, setDeleting] = useState(false)
+  const [confirmClose, setConfirmClose] = useState(false)
+
+  const isDirty = (
+    form.dni !== emptyForm.dni ||
+    form.nombres !== emptyForm.nombres ||
+    form.apellidos !== emptyForm.apellidos ||
+    form.fecha_nacimiento !== emptyForm.fecha_nacimiento ||
+    form.sexo !== emptyForm.sexo ||
+    form.telefono !== emptyForm.telefono ||
+    form.direccion !== emptyForm.direccion ||
+    form.correo !== emptyForm.correo ||
+    form.estado !== emptyForm.estado
+  )
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -164,12 +178,12 @@ export default function SociosPage() {
     setDeleting(true)
     try {
       await api(`/socios/${deleteId}/`, { method: 'DELETE' })
-      setDeleteId(null)
-      loadSocios(searchDni, searchNombre, searchApellido)
       toast.success('Socio eliminado correctamente.')
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Error al eliminar')
     } finally {
+      setDeleteId(null)
+      loadSocios(searchDni, searchNombre, searchApellido)
       setDeleting(false)
     }
   }
@@ -199,6 +213,7 @@ export default function SociosPage() {
         telefono: data.telefono,
         direccion: data.direccion || '',
         correo: data.correo || '',
+        estado: data.estado || 'Activo',
       })
     } catch {
       setForm({
@@ -210,6 +225,7 @@ export default function SociosPage() {
         telefono: socio.telefono,
         direccion: '',
         correo: '',
+        estado: 'Activo',
       })
     }
   }
@@ -274,14 +290,15 @@ export default function SociosPage() {
                 <TableHead className="text-zinc-400">Apellidos</TableHead>
                 <TableHead className="text-zinc-400">Teléfono</TableHead>
                 <TableHead className="text-zinc-400">Estado</TableHead>
+                <TableHead className="text-zinc-400">Membresía</TableHead>
                 <TableHead className="text-zinc-400">Acciones</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {loading ? (
-                <TableRow><TableCell colSpan={6} className="text-center text-zinc-500 py-8">Cargando...</TableCell></TableRow>
+                <TableRow><TableCell colSpan={7} className="text-center text-zinc-500 py-8">Cargando...</TableCell></TableRow>
               ) : socios.length === 0 ? (
-                <TableRow><TableCell colSpan={6} className="text-center text-zinc-500 py-8">No se encontraron socios.</TableCell></TableRow>
+                <TableRow><TableCell colSpan={7} className="text-center text-zinc-500 py-8">No se encontraron socios.</TableCell></TableRow>
               ) : socios.map((s) => (
                 <TableRow key={s.id} className="border-zinc-800 hover:bg-zinc-800/30">
                   <TableCell className="font-medium text-zinc-200">{s.dni}</TableCell>
@@ -289,30 +306,17 @@ export default function SociosPage() {
                   <TableCell className="text-zinc-300">{s.apellidos}</TableCell>
                   <TableCell className="text-zinc-300">{s.telefono}</TableCell>
                   <TableCell>
-                    <Badge variant={s.estado_membresia.includes('Activa') ? 'default' : 'secondary'}
-                      className={s.estado_membresia.includes('Activa') ? 'bg-green-500/20 text-green-400 border-green-500/30' : 'bg-zinc-800 text-zinc-400'}>
-                      {s.estado_membresia.includes('Activa') ? 'Activo' : 'Inactivo'}
+                    <Badge variant={s.estado === 'Activo' ? 'default' : 'secondary'}
+                      className={s.estado === 'Activo' ? 'bg-green-500/20 text-green-400 border-green-500/30' : 'bg-zinc-800 text-zinc-400'}>
+                      {s.estado}
                     </Badge>
                   </TableCell>
+                  <TableCell className="text-zinc-400 text-sm">{s.estado_membresia}</TableCell>
                   <TableCell>
                     <div className="flex gap-2">
                       <Button variant="ghost" size="icon" onClick={() => openFicha(s.id)} className="text-zinc-400 hover:text-orange-400"><Eye className="h-4 w-4" /></Button>
                       <Button variant="ghost" size="icon" onClick={() => openEdit(s)} className="text-zinc-400 hover:text-blue-400"><Edit className="h-4 w-4" /></Button>
                       <Button variant="ghost" size="icon" onClick={() => handleDelete(s.id)} className="text-zinc-400 hover:text-red-400"><Trash2 className="h-4 w-4" /></Button>
-      <Dialog open={deleteId !== null} onOpenChange={(open) => { if (!open) setDeleteId(null) }}>
-        <DialogContent className="bg-zinc-900 border-zinc-800 text-zinc-100 max-w-sm">
-          <DialogHeader><DialogTitle>Confirmar Eliminación</DialogTitle></DialogHeader>
-          <p className="text-zinc-400 text-sm">¿Está seguro de eliminar este socio? Esta acción no se puede deshacer.</p>
-          <div className="flex justify-end gap-3 pt-4">
-            <Button onClick={() => setDeleteId(null)} variant="outline" className="border-zinc-700 text-zinc-300 hover:bg-zinc-800">
-              Cancelar
-            </Button>
-            <Button onClick={confirmDelete} disabled={deleting} className="bg-red-500 hover:bg-red-600 text-white">
-              {deleting ? 'Eliminando...' : 'Eliminar'}
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
                   </TableCell>
                 </TableRow>
@@ -322,7 +326,21 @@ export default function SociosPage() {
         </CardContent>
       </Card>
 
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      <Dialog open={dialogOpen} onOpenChange={(open) => {
+        if (!open && isDirty) {
+          if (document.activeElement instanceof HTMLElement) {
+            document.activeElement.blur()
+          }
+          setConfirmClose(true)
+        } else {
+          setDialogOpen(open)
+          if (!open) {
+            setForm(emptyForm)
+            setEditingId(null)
+            setFormError('')
+          }
+        }
+      }}>
         <DialogContent className="bg-zinc-900 border-zinc-800 text-zinc-100 max-w-lg">
           <DialogHeader><DialogTitle>{editingId ? 'Editar Socio' : 'Registrar Socio'}</DialogTitle></DialogHeader>
           <form onSubmit={handleSave} className="space-y-3">
@@ -371,6 +389,20 @@ export default function SociosPage() {
                   className="bg-zinc-800 border-zinc-700 text-zinc-100" />
               </div>
             </div>
+            {editingId && (
+              <div className="space-y-1">
+                <Label className="text-zinc-300 text-sm">Estado</Label>
+                <Select value={form.estado} onValueChange={(v: string | null) => setForm({ ...form, estado: v ?? 'Activo' })}>
+                  <SelectTrigger className="bg-zinc-800 border-zinc-700 text-zinc-100 data-[placeholder]:text-zinc-400">
+                    <SelectValue placeholder="Seleccionar" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-zinc-800 border-zinc-700 text-zinc-100">
+                    <SelectItem value="Activo" className="text-zinc-100 focus:bg-orange-500/20 focus:text-orange-400">Activo</SelectItem>
+                    <SelectItem value="Inactivo" className="text-zinc-100 focus:bg-orange-500/20 focus:text-orange-400">Inactivo</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
             <div className="space-y-1">
               <Label className="text-zinc-300 text-sm">Dirección</Label>
               <Input value={form.direccion} onChange={(e) => setForm({ ...form, direccion: e.target.value })} maxLength={150}
@@ -458,6 +490,29 @@ export default function SociosPage() {
             </Button>
             <Button onClick={confirmDelete} disabled={deleting} className="bg-red-500 hover:bg-red-600 text-white">
               {deleting ? 'Eliminando...' : 'Eliminar'}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={confirmClose} onOpenChange={setConfirmClose}>
+        <DialogContent className="bg-zinc-900 border-zinc-800 text-zinc-100 max-w-sm">
+          <DialogHeader><DialogTitle>¿Descartar cambios?</DialogTitle></DialogHeader>
+          <p className="text-zinc-400 text-sm">
+            Tiene cambios sin guardar. Si cierra ahora, el socio no se registrará.
+          </p>
+          <div className="flex justify-end gap-3 pt-4">
+            <Button onClick={() => setConfirmClose(false)} variant="outline" className="border-zinc-700 text-zinc-300 hover:bg-zinc-800">
+              Seguir editando
+            </Button>
+            <Button onClick={() => {
+              setConfirmClose(false)
+              setDialogOpen(false)
+              setForm(emptyForm)
+              setEditingId(null)
+              setFormError('')
+            }} className="bg-red-500 hover:bg-red-600 text-white">
+              Descartar
             </Button>
           </div>
         </DialogContent>
