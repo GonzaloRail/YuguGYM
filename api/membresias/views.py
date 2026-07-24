@@ -51,14 +51,13 @@ def renovar_membresia(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated, IsAdminUser])
 def membresias_vencidas(request):
-    hoy = date.today()
     membresias = Membresia.objects.filter(
-        fecha_vencimiento__lt=hoy
+        estado__nombre='Vencida'
     ).select_related('socio', 'tipo_membresia').order_by('fecha_vencimiento')
 
     data = []
     for m in membresias:
-        dias_retraso = (hoy - m.fecha_vencimiento).days
+        dias_retraso = (date.today() - m.fecha_vencimiento).days
         data.append({
             'socio_dni': m.socio.dni,
             'nombres': m.socio.nombres,
